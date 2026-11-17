@@ -1,0 +1,948 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Global Logistics API · Hoja de trabajo 12 · Métricas de plataforma</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='8' fill='%2318232A'/><path d='M12 46h40' stroke='%23C8D2CA' stroke-width='3'/><path d='M12 40l12-10 10 6 18-18' fill='none' stroke='%2334A08A' stroke-width='5' stroke-linecap='round' stroke-linejoin='round'/></svg>" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,600;8..60,700;8..60,800&family=Source+Sans+3:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F0F2EE; --card:#FFFFFF; --soft:#E3E9E4;
+  --ink:#18232A; --muted:#56645E; --line:#C8D2CA;
+  --accent:#9E3F25; --accent2:#22675A; --ochre:#9A6B2F;
+  --code:#18232A;
+  --content-max:1800px;
+  --page-gutter:clamp(20px,4vw,72px);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;scroll-padding-top:4.5rem}
+body{
+  background-color:var(--paper);
+  background-image:radial-gradient(rgba(24,35,42,.075) 1px, transparent 1px);
+  background-size:22px 22px;
+  color:var(--ink);font-family:'Source Sans 3',system-ui,sans-serif;line-height:1.62;font-size:1.02rem
+}
+#bg{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
+.bar{position:fixed;top:0;left:0;height:3px;width:0;background:var(--accent);z-index:11;transition:width .2s}
+
+/* ---------- secciones ---------- */
+main{position:relative;z-index:1}
+section.s{position:relative;min-height:100vh;padding:10vh var(--page-gutter);display:flex;flex-direction:column;justify-content:center;border-bottom:1px solid var(--line)}
+section.s > *{width:100%;min-width:0;margin-left:auto;margin-right:auto;max-width:var(--content-max)}
+section.s.hero{min-height:92vh}
+section.s.hero h1{text-align:center}
+section.s.hero h1 .acc{display:inline-block;max-width:100%}
+section.s.hero > .kicker{text-align:center;justify-content:center}
+section.s.hero > .muted{text-align:center;max-width:100ch}
+
+.kicker{font-family:'JetBrains Mono',monospace;font-size:.76rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:.9rem;display:flex;flex-wrap:wrap;align-items:center;gap:.5rem}
+.sec{display:inline-block;font-family:'Source Serif 4',Georgia,serif;font-weight:700;color:var(--paper);background:var(--accent);padding:.02rem .55rem;border-radius:2px;font-size:.95rem;letter-spacing:0}
+
+h1,h2,h3{font-family:'Source Serif 4',Georgia,serif}
+h1{font-weight:800;line-height:1.02;font-size:clamp(2.5rem,6.4vw,4.9rem);margin-bottom:1.1rem;letter-spacing:-.02em}
+h2{font-weight:700;line-height:1.1;font-size:clamp(1.65rem,3.4vw,2.55rem);margin-bottom:1.4rem;letter-spacing:-.01em}
+h3{font-weight:700;font-size:1.1rem;color:var(--ink);margin-bottom:.4rem}
+.strike{color:var(--muted);text-decoration:line-through;text-decoration-thickness:3px;text-decoration-color:var(--accent)}
+.acc{color:var(--accent);box-shadow:inset 0 -.18em 0 rgba(158,63,37,.18)}
+p,li{font-size:1.02rem}
+.muted{color:var(--muted)}
+
+/* ---------- componentes ---------- */
+.grid{display:grid;gap:1.1rem;grid-template-columns:repeat(auto-fit,minmax(min(240px,100%),1fr));align-items:stretch}
+.grid > *{min-width:0}
+.card{height:100%;background:var(--card);border:1px solid var(--line);border-radius:4px;padding:1.2rem 1.3rem;box-shadow:3px 3px 0 var(--line)}
+.card.accent{border-left:4px solid var(--accent2)}
+.card.warn{border-left:4px solid var(--accent)}
+.card.amber{border-left:4px solid var(--ochre)}
+.grid > .card{display:flex;flex-direction:column}
+.grid > .card h3{min-height:2.65em;display:flex;align-items:flex-end}
+.card p + p{margin-top:.6rem}
+.callout{border-left:4px solid var(--accent);background:var(--soft);padding:1rem 1.2rem;border-radius:0 4px 4px 0;margin-top:1.2rem}
+.callout.g{border-left-color:var(--accent2)}
+.callout.o{border-left-color:var(--ochre)}
+.callout h3{margin-bottom:.3rem}
+code{font-family:'JetBrains Mono',monospace;font-size:.88em;background:var(--soft);padding:.05rem .35rem;border-radius:2px;overflow-wrap:anywhere}
+.tag{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:.7rem;padding:.12rem .55rem;border-radius:2px;border:1px solid var(--ink);color:var(--ink);margin:0 .4rem .4rem 0;letter-spacing:.03em;white-space:nowrap}
+.tag.amber{border-color:var(--ochre);color:var(--ochre)}
+.tag.red{border-color:var(--accent);color:var(--accent)}
+.tag.green{border-color:var(--accent2);color:var(--accent2)}
+ul.clean{list-style:none}
+ul.clean li{padding-left:1.4rem;position:relative;margin-bottom:.55rem}
+ul.clean li:before{content:"";position:absolute;left:0;top:.62em;width:.5rem;height:.5rem;background:var(--accent)}
+ul.check{list-style:none;margin:1rem 0}
+ul.check li{position:relative;padding:.5rem 0 .5rem 1.8rem;border-bottom:1px solid var(--line)}
+ul.check li:before{content:"✓";position:absolute;left:0;color:var(--accent2);font-weight:700}
+ul.cross{list-style:none;margin:.6rem 0 0}
+ul.cross li{position:relative;padding:.35rem 0 .35rem 1.6rem;font-size:.95rem}
+ul.cross li:before{content:"✕";position:absolute;left:0;color:var(--accent);font-weight:700}
+a{color:var(--accent2)}
+.tw{overflow-x:auto;background:var(--card);border:1px solid var(--line);border-radius:4px;box-shadow:3px 3px 0 var(--line)}
+table{width:100%;border-collapse:collapse;font-size:.94rem;background:var(--card)}
+th,td{text-align:left;padding:.65rem .75rem;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-family:'JetBrains Mono',monospace;font-weight:500;color:var(--muted);font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;border-bottom:2px solid var(--ink)}
+tbody tr:last-child td{border-bottom:0}
+tfoot td{border-top:2px solid var(--ink);background:var(--soft);font-weight:600}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+td.num{white-space:nowrap}
+td.pos{color:var(--accent2);font-weight:600}
+td.neg{color:var(--accent);font-weight:600}
+.table-hint{display:none}
+
+figure{margin:1.2rem 0}
+figcaption{font-size:.92rem;color:var(--muted);margin-top:.7rem}
+figcaption b{color:var(--accent);font-family:'JetBrains Mono',monospace;font-weight:500}
+
+.btn{background:transparent;color:var(--ink);border:1px solid var(--ink);padding:.48rem 1rem;border-radius:2px;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.8rem;transition:.15s;text-decoration:none;display:inline-block}
+.btn:hover{background:var(--soft)}
+.row{display:flex;gap:.6rem;flex-wrap:wrap;margin:.6rem 0 1rem;align-items:center}
+.count{font-family:'JetBrains Mono',monospace;font-size:.8rem;color:var(--muted)}
+
+.index a{display:flex;gap:1rem;align-items:baseline;padding:.85rem 0;border-bottom:1px solid var(--line);color:var(--ink);text-decoration:none}
+.index a:hover h3{color:var(--accent)}
+.index .n{font-family:'Source Serif 4',Georgia,serif;font-weight:800;color:var(--accent);width:3.4rem;font-size:1.4rem;flex:none}
+.meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(210px,100%),1fr));gap:.8rem 1.4rem;margin-top:2.2rem;width:100%;max-width:920px}
+.meta div{border-top:1px solid var(--ink);padding-top:.5rem}
+.meta span{display:block;font-family:'JetBrains Mono',monospace;font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.meta .team-meta{grid-column:1/-1}
+.team-cols{display:grid;grid-template-columns:1fr 1fr;gap:4px 28px;margin:6px 0 0}
+.team-cols b{display:block;font-weight:400}
+
+.three-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+.two-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+.lbl{font-family:'JetBrains Mono',monospace;font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:.4rem}
+
+/* lectura por capas */
+.reading-controls{display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;margin:1rem 0;padding:1rem 1.2rem;background:var(--soft);border-radius:4px}
+.reading-controls[hidden]{display:none}
+.reading-controls p{font-size:.95rem;color:var(--muted)}
+.reading-controls .btn{background:var(--card);white-space:normal}
+.summary-grid{margin-top:1.4rem}
+.brief-line{margin-top:1.2rem;padding:.9rem 1.1rem;border-left:4px solid var(--accent);background:var(--soft)}
+.content-details{margin-top:1rem;padding:1rem 1.2rem;background:var(--card);border:1px solid var(--line);border-radius:4px}
+.content-details > summary{cursor:pointer;font-weight:600;color:var(--accent);font-size:1.08rem}
+.content-details > summary::marker{color:var(--accent)}
+.content-details > summary:focus-visible,.reading-controls .btn:focus-visible,.diagram-viewer-toolbar button:focus-visible{outline:2px solid var(--accent);outline-offset:5px}
+.content-details[open] > summary{padding-bottom:.8rem;margin-bottom:1rem;border-bottom:1px solid var(--line)}
+.content-details .tw{margin-top:.8rem}
+.content-details h3.sub{margin-top:1.8rem}
+.equipo-details{margin-top:1.5rem;background:var(--soft);border:1px solid var(--line);border-radius:4px;padding:1rem 1.2rem}
+.equipo-details summary{cursor:pointer;font-weight:600;color:var(--accent2)}
+.equipo-details p{margin-top:.8rem}
+
+/* pasos y defensas */
+.equipo-steps{list-style:none;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem;margin-top:1.2rem}
+.equipo-steps li{background:var(--card);border:1px solid var(--line);border-top:3px solid var(--accent2);padding:1rem 1.1rem;line-height:1.5}
+.equipo-steps li.bad{border-top-color:var(--accent)}
+.equipo-steps b{display:block;font-family:'Source Serif 4',Georgia,serif;font-size:1.15rem;margin-bottom:.4rem}
+.guard-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem;margin-top:1.2rem}
+.guard-card{display:grid;grid-template-columns:2.2rem minmax(0,1fr);gap:.8rem;background:var(--card);border:1px solid var(--line);border-radius:4px;padding:1rem;box-shadow:3px 3px 0 var(--line)}
+.guard-number{display:grid;place-items:center;width:2rem;height:2rem;background:var(--ink);color:var(--paper);font-family:'JetBrains Mono',monospace;font-weight:500}
+.guard-card h3{font-size:1.05rem;margin-bottom:.35rem}
+.guard-card p{font-size:.92rem;color:var(--muted)}
+.guard-outcome{margin-top:1rem;padding:1rem 1.2rem;border-left:4px solid var(--accent2);background:var(--soft);display:flex;gap:1rem;align-items:baseline}
+.guard-outcome strong{color:var(--accent2);white-space:nowrap}
+
+/* cálculo de valor */
+.calc-pair{display:grid;grid-template-columns:repeat(2,minmax(0,1fr)) minmax(0,.9fr);gap:1rem;margin-top:1.4rem}
+.calc{background:var(--card);border:1px solid var(--line);border-top:4px solid var(--accent);border-radius:4px;padding:1.1rem 1.2rem;box-shadow:3px 3px 0 var(--line);display:flex;flex-direction:column}
+.calc.good{border-top-color:var(--accent2)}
+.calc.total{border:2px solid var(--accent2);border-top-width:4px}
+.calc .f{font-family:'JetBrains Mono',monospace;font-size:.84rem;color:var(--muted);margin:.35rem 0 .6rem}
+.calc .v{font-family:'Source Serif 4',Georgia,serif;font-weight:800;font-size:clamp(1.9rem,3.4vw,2.6rem);line-height:1.05;margin-top:auto}
+.calc .v.red{color:var(--accent)} .calc .v.green{color:var(--accent2)}
+.calc .d{font-size:.9rem;color:var(--muted);margin-top:.35rem}
+.statement{margin-top:1.4rem;padding:1.2rem 1.4rem;border:2px solid var(--ink);background:var(--card);border-radius:4px;box-shadow:3px 3px 0 var(--line)}
+.statement .lbl{margin-bottom:.5rem}
+.statement p{font-family:'Source Serif 4',Georgia,serif;font-size:clamp(1.08rem,1.6vw,1.28rem);line-height:1.5}
+
+/* sensibilidad */
+.bars{background:var(--card);border:1px solid var(--line);border-radius:4px;padding:1.1rem 1.2rem 1rem;box-shadow:3px 3px 0 var(--line);margin-top:1rem}
+.bars-row{display:grid;grid-template-columns:8.5rem minmax(0,1fr) 7.5rem;gap:.8rem;align-items:center;padding:.38rem 0}
+.bars-row .k{font-family:'JetBrains Mono',monospace;font-size:.76rem;color:var(--muted)}
+.bars-row .val{font-family:'JetBrains Mono',monospace;font-size:.8rem;text-align:right;font-variant-numeric:tabular-nums}
+.track{position:relative;height:22px;background:var(--soft);border-radius:2px}
+.track .fill{position:absolute;left:0;top:0;bottom:0;background:var(--ochre);border-radius:2px}
+.track .fill.ok{background:var(--accent2)}
+.track .mark{position:absolute;top:-6px;bottom:-6px;width:0;border-left:2px dashed var(--accent)}
+.bars-head{display:grid;grid-template-columns:8.5rem minmax(0,1fr) 7.5rem;gap:.8rem;padding-bottom:.35rem}
+.bars-head .cap{position:relative;height:1.4rem}
+.bars-head .cap span{position:absolute;right:calc(100% - var(--m));white-space:nowrap;font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--accent);padding-right:.45rem}
+.bars-legend{display:flex;gap:1.2rem;flex-wrap:wrap;margin-top:.7rem;font-size:.85rem;color:var(--muted)}
+.bars-legend i{display:inline-block;width:.8rem;height:.8rem;vertical-align:-.1em;margin-right:.35rem;border-radius:1px}
+
+/* tablero */
+.board{background:var(--card);border:1.5px solid var(--ink);border-radius:4px;box-shadow:3px 3px 0 var(--line);margin-top:1.4rem;overflow:hidden}
+.board-head{display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap;padding:.6rem 1rem;border-bottom:1.5px solid var(--ink);font-family:'JetBrains Mono',monospace;font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.board-grid{display:grid;grid-template-columns:minmax(0,2.1fr) minmax(0,2fr) minmax(0,1.1fr)}
+.board-group{padding:1rem;border-right:1px solid var(--line);display:flex;flex-direction:column;gap:.8rem;min-width:0}
+.board-group:last-child{border-right:0}
+.board-group > .lbl{margin:0}
+.board-pair{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:.5rem;align-items:stretch}
+.board-pair .arrow{align-self:center;font-family:'JetBrains Mono',monospace;font-size:.68rem;color:var(--accent2);text-align:center;line-height:1.2}
+.board-pair .arrow b{display:block;font-size:1.3rem;font-weight:500}
+.board-two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.8rem}
+.tile{border:1px solid var(--line);border-top:4px solid var(--accent2);border-radius:4px;padding:.8rem .9rem;background:var(--card);display:flex;flex-direction:column;min-width:0}
+.tile.s{border-top-color:var(--ochre)}
+.tile.k{border-top-color:var(--ink)}
+.tile .ty{font-family:'JetBrains Mono',monospace;font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.tile h3{font-size:1.08rem;margin:.25rem 0 .3rem;line-height:1.2}
+.tile p{font-size:.88rem;color:var(--muted);line-height:1.45}
+.tile .goal{margin-top:auto;padding-top:.6rem;font-family:'JetBrains Mono',monospace;font-size:.74rem;color:var(--ink);border-top:1px dashed var(--line)}
+.board-foot{padding:.6rem 1rem;border-top:1px solid var(--line);background:var(--soft);font-size:.88rem;color:var(--muted)}
+
+/* ficha de métrica */
+.spec{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:1rem;margin-top:1rem}
+.spec .card h3{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap}
+.spec dl{display:grid;grid-template-columns:7.2rem minmax(0,1fr);gap:.35rem .8rem;margin-top:.7rem;font-size:.93rem}
+.spec dt{font-family:'JetBrains Mono',monospace;font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding-top:.2rem}
+.spec dd{min-width:0}
+
+/* visor de diagramas */
+.diagram-viewer-toolbar{display:flex;gap:8px;justify-content:flex-end;margin-bottom:8px}
+.diagram-viewer-toolbar button{border:1px solid var(--line);background:var(--card);border-radius:4px;padding:6px 12px;font-weight:600;font-size:13px;cursor:pointer;font-family:'Source Sans 3',sans-serif;color:var(--ink)}
+.diagram-viewer-toolbar button:hover{border-color:var(--accent);color:var(--accent)}
+.diagram-viewer-stage{position:relative;background:#fff;border:1px solid var(--line);border-top:3px solid var(--accent);border-radius:4px;overflow:hidden;cursor:grab;touch-action:none;box-shadow:3px 3px 0 var(--line)}
+.diagram-viewer-stage.grabbing{cursor:grabbing}
+.diagram-viewer-stage > svg{position:absolute;top:0;left:0;transform-origin:0 0;width:auto !important;height:auto !important;max-width:none;user-select:none;border:none !important}
+
+@media (max-width:1100px){
+  .board-grid{grid-template-columns:minmax(0,1fr)}
+  .board-group{border-right:0;border-bottom:1px solid var(--line)}
+  .board-group:last-child{border-bottom:0}
+}
+@media (max-width:900px){section.s{padding:9vh var(--page-gutter)}}
+@media (max-width:820px){.grid{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:720px){
+  .three-grid,.two-grid,.equipo-steps,.guard-grid,.calc-pair,.spec,.board-two{grid-template-columns:minmax(0,1fr)}
+  .board-pair{grid-template-columns:minmax(0,1fr)}
+  .board-pair .arrow b{transform:rotate(90deg)}
+  .guard-outcome{align-items:flex-start;flex-direction:column}
+  .grid > .card h3{min-height:0}
+  .bars-row,.bars-head{grid-template-columns:5.6rem minmax(0,1fr) 5.8rem;gap:.5rem}
+  .bars-head{display:block}
+  .bars-head > span{display:none}
+  .bars-head .cap{height:auto}
+  .bars-head .cap span{position:static;display:block;font-size:.7rem;padding:0}
+}
+@media (max-width:600px){
+  .team-cols{grid-template-columns:1fr}
+  th,td{padding:.55rem}
+  td{font-size:.86rem}
+  th{font-size:.64rem}
+  .wide-table{min-width:720px}
+  .table-hint{display:block;font-size:.85rem;color:var(--muted);margin-top:.6rem}
+  .spec dl{grid-template-columns:minmax(0,1fr)}
+  .spec dt{padding-top:.5rem}
+}
+@media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}}
+@media print{
+  @page{size:A4;margin:16mm}
+  body{background:#fff;font-size:10pt;color:#18232A}
+  #bg,.bar,.diagram-viewer-toolbar,.reading-controls{display:none !important}
+  section.s,section.s.hero{display:block;min-height:0;padding:0 0 8mm;break-before:page}
+  section.s:first-child{break-before:auto}
+  section.s > *{max-width:none}
+  h1{font-size:30pt}h2{font-size:21pt}h3{font-size:12pt;break-after:avoid}
+  p,li{font-size:10pt}table{font-size:9pt}th{font-size:8pt}
+  .tw{overflow:visible;box-shadow:none}thead{display:table-header-group}
+  tr,.card,.callout,.calc,.tile,.guard-card,li{break-inside:avoid}
+  .card,.calc,.bars,.board,.statement,.guard-card{box-shadow:none}
+  .wide-table{min-width:0}
+  .diagram-viewer-stage{height:auto !important;aspect-ratio:auto !important;overflow:visible;box-shadow:none;border:0}
+  .diagram-viewer-stage > svg{position:static !important;width:100% !important;height:auto !important;transform:none !important}
+  figure{break-inside:avoid}
+  details > *{display:block !important}
+  .content-details{padding:0;border:0;background:none}
+  .content-details > summary{display:none !important}
+}
+</style>
+</head>
+<body>
+<canvas id="bg" aria-hidden="true"></canvas>
+<div class="bar" id="bar"></div>
+
+<main>
+
+<!-- PORTADA -->
+<section class="s hero" id="inicio">
+  <div class="kicker">ARTI-4219 Arquitectura de Plataformas · Hoja de trabajo 12</div>
+  <h1>Global Logistics API:<br>de <span class="strike">centro de costo</span> a <span class="acc">motor de valor</span></h1>
+  <p class="muted">Métricas de plataforma para defender la inversión ante la junta: traducir el Golden Path a dólares y a Cost of Delay evitado, anticipar la entrega con señales líderes, proteger a las personas con SPACE y lograr que el camino oficial sea el que los equipos eligen.</p>
+  <div class="hx" style="margin-top:1.8rem">
+    <svg id="hxSvg" viewBox="0 0 1000 600" role="img" aria-label="Animación comparativa: aprovisionamiento manual de 20 días frente al Golden Path de 2 días, con el costo de espera y el ahorro acumulado de los 10 equipos" style="width:100%;height:auto;display:block;background:var(--card);border:1px solid var(--line);border-radius:4px;box-shadow:3px 3px 0 var(--line)">
+      <rect x="24" y="12" width="282" height="28" rx="14" fill="var(--ink)"/><text x="39" y="31" font-family="'Source Sans 3',sans-serif" font-size="14" font-weight="700" letter-spacing="0.4" fill="#FFFFFF">ANTES · aprovisionamiento manual</text>
+      <g id="gAntes"></g>
+      <line x1="24" y1="256" x2="976" y2="256" stroke="var(--line)" stroke-width="1"/>
+      <rect x="24" y="270" width="318" height="28" rx="14" fill="var(--accent2)"/><text x="39" y="289" font-family="'Source Sans 3',sans-serif" font-size="14" font-weight="700" letter-spacing="0.4" fill="#FFFFFF">DESPUÉS · Golden Path de la plataforma</text>
+      <g id="gDespues"></g>
+      <g id="gRonda"></g>
+    </svg>
+    <p class="muted" style="font-size:.9rem;margin-top:.6rem">Animación conceptual con las cifras del caso: 5 ingenieros a $500 USD diarios, 20 días frente a 2 días y 10 equipos. El reparto de los 20 días entre etapas es ilustrativo; el caso solo da el total. El cálculo completo está en el bloque I.</p>
+  </div>
+
+  <div class="meta">
+    <div><span>Programa</span>Maestría en Arquitecturas de TI · Uniandes</div>
+    <div><span>Periodo</span>2026-20</div>
+    <div><span>Marco</span>Cost of Delay · DORA · SPACE · DevEx</div>
+    <div class="team-meta"><span>Equipo</span><p class="team-cols"><em style="font-style:normal"><b>Daniel Rubio Sierra</b><b>Diego Alexander Latorre Carrasquilla</b><b>Andrés Felipe Suárez Moscoso</b></em><em style="font-style:normal"><b>Maycol Alejandro Yate Estupiñán</b><b>Rubén Antonio Parra Medrano</b></em></p></div>
+  </div>
+</section>
+
+<!-- CONTENIDO -->
+<section class="s" id="contenido">
+  <div class="kicker">Contenido</div>
+  <h2>Decisiones del comité</h2>
+  <div class="grid three-grid" style="margin-bottom:1.6rem">
+    <div class="card accent"><h3>Defender con dólares</h3><p>Cada aprovisionamiento por el Golden Path evita $45.000 de espera y llega 18 días antes a producción. Una ronda de los 10 equipos suma $450.000.</p></div>
+    <div class="card accent"><h3>Medir antes de producción</h3><p>Un tablero de cinco señales: Lead Time for Changes con su señal líder, dos métricas SPACE agregadas por equipo y la adopción voluntaria.</p></div>
+    <div class="card accent"><h3>Ganar la elección</h3><p>La retroalimentación baja de 20 días a 2 y la infraestructura sale de la cabeza del equipo. El Shadow IT pierde su razón de ser sin castigos.</p></div>
+  </div>
+  <p style="margin-bottom:1rem">La propuesta es que la junta evalúe al equipo de plataforma por el retorno medido y no por las características que construye. El tablero se revisa cada mes con el CTO y cada trimestre con la junta.</p>
+  <div class="reading-controls" hidden>
+    <p id="reading-status" aria-live="polite">Vista de síntesis · Despliega cada apartado para consultar su fundamento.</p>
+    <button type="button" class="btn" id="reading-toggle" aria-expanded="false">Mostrar análisis completo</button>
+  </div>
+  <div class="index">
+    <a href="#i"><span class="n">I</span><div><h3>Cálculo de valor financiero</h3><p class="muted">Ahorro por despliegue, proyección a 10 equipos y Cost of Delay</p></div></a>
+    <a href="#ii"><span class="n">II</span><div><h3>Tablero de ecosistema de métricas</h3><p class="muted">Par DORA lagging y leading, dos SPACE y un KPI de producto</p></div></a>
+    <a href="#iii"><span class="n">III</span><div><h3>Definición de DevEx</h3><p class="muted">Ciclo de retroalimentación, carga cognitiva y prevención orgánica del Shadow IT</p></div></a>
+    <a href="#cierre"><span class="n">→</span><div><h3>Cierre del comité</h3><p class="muted">Respuesta a la junta, hoja de ruta, riesgos y supuestos</p></div></a>
+  </div>
+</section>
+
+<!-- I · VALOR FINANCIERO -->
+<section class="s" id="i">
+  <div class="kicker"><span class="sec">I</span>Cálculo de valor financiero · ROI</div>
+  <h2>Cada aprovisionamiento por el Golden Path evita $45.000 de espera</h2>
+  <p>La junta afirma que el equipo de plataforma «no construye características de negocio». Esa crítica mide a la plataforma con el modelo de proyectos (features, story points, plazos). S14 propone medir outcomes: <b>el valor de una plataforma es el desperdicio que elimina</b>. El caso permite medir lo que sí produce: antes, un equipo de 5 ingenieros tardaba 20 días en provisionar e integrar su infraestructura, a $500 USD diarios por ingeniero en esperas y configuraciones. Con el Golden Path, el mismo proceso toma 2 días.</p>
+  <div class="calc-pair">
+    <div class="calc"><div class="lbl">Sin plataforma</div><div class="f">5 ingenieros × 20 días × $500</div><div class="v red">$50.000</div><div class="d">100 días-ingeniero por aprovisionamiento</div></div>
+    <div class="calc good"><div class="lbl">Con Golden Path</div><div class="f">5 ingenieros × 2 días × $500</div><div class="v green">$5.000</div><div class="d">10 días-ingeniero por aprovisionamiento</div></div>
+    <div class="calc total"><div class="lbl">Espera evitada · 10 equipos</div><div class="f">10 × ($50.000 − $5.000)</div><div class="v green">$450.000</div><div class="d">$45.000 por equipo (−90 %) y 18 días antes en producción</div></div>
+  </div>
+  <div class="statement">
+    <div class="lbl">Enunciado para la junta · ahorro y Cost of Delay</div>
+    <p>El Golden Path evita $450.000 de espera en los 10 equipos y recupera 180 días de mercado.<br>Recortarlo devuelve a cada entrega futura 18 días sin capturar valor: ese es el Cost of Delay que la plataforma evita.</p>
+  </div>
+  <p class="brief-line"><strong>Punto de equilibrio:</strong> con tres aprovisionamientos por equipo al año, la espera evitada cubre el costo estimado del equipo. Cada aprovisionamiento adicional y los 18 días de adelanto en cada entrega son retorno neto.</p>
+  <details class="content-details"><summary>Ver el cálculo unitario, la proyección y los supuestos</summary>
+  <h3 id="ahorro-unitario" class="sub" style="margin-top:.6rem">1.1 Ahorro por un despliegue de infraestructura</h3>
+  <p>El costo de un aprovisionamiento es el tiempo de los ingenieros que esperan o configuran, valorado a la tarifa del caso. El caso precisa que los $500 diarios corresponden a «esperas y configuraciones», es decir, a tiempo que no produce valor de negocio. De las tres fuentes de tiempo perdido que identifica S14, el caso cuantifica dos: los <b>bloqueos por dependencias</b> (tickets y esperas para aprovisionar) y la <b>carga cognitiva extrínseca</b> (configuración ajena al negocio). La tercera, mala calidad e incidentes, no tiene cifra en el caso y se sigue en el tablero con M1 y el tiempo de recuperación.</p>
+  <div class="tw"><table class="wide-table">
+    <thead><tr><th>Concepto</th><th class="num">Sin plataforma</th><th class="num">Con Golden Path</th><th class="num">Diferencia</th></tr></thead>
+    <tbody>
+      <tr><td>Duración del aprovisionamiento</td><td class="num">20 días</td><td class="num">2 días</td><td class="num pos">−18 días</td></tr>
+      <tr><td>Esfuerzo (5 ingenieros × días)</td><td class="num">100 días-ingeniero</td><td class="num">10 días-ingeniero</td><td class="num pos">−90 días-ingeniero</td></tr>
+      <tr><td>Costo (esfuerzo × $500)</td><td class="num">$50.000</td><td class="num">$5.000</td><td class="num pos">−$45.000</td></tr>
+    </tbody>
+    <tfoot><tr><td>Ahorro por aprovisionamiento</td><td class="num"></td><td class="num"></td><td class="num">$45.000 · −90 %</td></tr></tfoot>
+  </table></div>
+  <p class="table-hint">Desliza la tabla horizontalmente para ver todas las columnas.</p>
+
+  <h3 id="proyeccion" class="sub">1.2 Proyección a los 10 equipos</h3>
+  <p>Los 10 equipos que hoy usan la ruta realizan, como mínimo, un aprovisionamiento cada uno. Esa ronda produce <b>10 × $45.000 = $450.000</b> y libera <b>900 días-ingeniero</b>, equivalentes a unas 4,1 personas durante un año de 220 días hábiles. El caso no informa cuántos aprovisionamientos hace cada equipo al año, así que el comité presenta la proyección por rondas y compara cada escenario con el costo del equipo.</p>
+  <p style="margin-top:.8rem">El caso tampoco da el costo del equipo de plataforma. Para no inflar el resultado se usa la misma tarifa: <b>12 ingenieros × $500 × 220 días = $1.320.000 al año</b>, sin nube ni licencias. Es una estimación que Finanzas reemplaza por el costo real en el primer mes.</p>
+  <div class="bars" role="img" aria-label="Ahorro directo anual según aprovisionamientos por equipo frente al costo anual estimado del equipo de 1,32 millones de dólares">
+    <div class="bars-head"><span></span><div class="cap" style="--m:66%"><span>costo anual estimado · $1.320.000</span></div><span></span></div>
+    <div class="bars-row"><span class="k">1 por equipo</span><div class="track"><div class="fill" style="width:22.5%"></div><div class="mark" style="left:66%"></div></div><span class="val">$450.000</span></div>
+    <div class="bars-row"><span class="k">2 por equipo</span><div class="track"><div class="fill" style="width:45%"></div><div class="mark" style="left:66%"></div></div><span class="val">$900.000</span></div>
+    <div class="bars-row"><span class="k">3 por equipo</span><div class="track"><div class="fill ok" style="width:67.5%"></div><div class="mark" style="left:66%"></div></div><span class="val">$1.350.000</span></div>
+    <div class="bars-row"><span class="k">4 por equipo</span><div class="track"><div class="fill ok" style="width:90%"></div><div class="mark" style="left:66%"></div></div><span class="val">$1.800.000</span></div>
+    <div class="bars-legend"><span><i style="background:var(--ochre)"></i>Ahorro directo menor que el costo: lo completa el Cost of Delay</span><span><i style="background:var(--accent2)"></i>Ahorro directo mayor que el costo</span><span><i style="border-left:2px dashed var(--accent);width:2px"></i>Costo anual estimado</span></div>
+  </div>
+  <p class="muted" style="font-size:.9rem;margin-top:.6rem">Escala de 0 a $2.000.000. Ahorro directo anual = 10 equipos × aprovisionamientos por equipo × $45.000.</p>
+  <div class="tw" style="margin-top:1rem"><table class="wide-table">
+    <thead><tr><th>Aprovisionamientos por equipo al año</th><th class="num">Ahorro directo</th><th class="num">Neto frente a $1.320.000</th><th class="num">ROI directo</th><th>Cost of Delay que cierra la brecha</th></tr></thead>
+    <tbody>
+      <tr><td>1 · una ronda</td><td class="num">$450.000</td><td class="num neg">−$870.000</td><td class="num neg">−66 %</td><td>$4.833 por día de adelanto (870.000 ÷ 180 días)</td></tr>
+      <tr><td>2</td><td class="num">$900.000</td><td class="num neg">−$420.000</td><td class="num neg">−32 %</td><td>$1.167 por día de adelanto (420.000 ÷ 360 días)</td></tr>
+      <tr><td>3 · punto de equilibrio</td><td class="num">$1.350.000</td><td class="num pos">+$30.000</td><td class="num pos">+2 %</td><td>No se requiere</td></tr>
+      <tr><td>4</td><td class="num">$1.800.000</td><td class="num pos">+$480.000</td><td class="num pos">+36 %</td><td>No se requiere</td></tr>
+    </tbody>
+  </table></div>
+  <p class="muted" style="margin-top:.8rem">ROI directo = (ahorro − costo) ÷ costo. El punto de equilibrio exacto es 1.320.000 ÷ 45.000 = 29,3 aprovisionamientos al año, es decir, tres por equipo. Cada aprovisionamiento adelanta 18 días una capacidad; la última columna indica cuánto debe valer para el negocio cada día de adelanto para que la inversión se pague sin contar más ahorro.</p>
+
+  <h3 id="cost-of-delay" class="sub">1.3 Por qué el Cost of Delay evitado justifica al equipo</h3>
+  <p>El modelo financiero de S14 separa dos retornos que no se deben confundir. El comité los presenta por separado: uno es costo evitado y medible hoy, y el otro es valor de negocio que se valida con el área de negocio.</p>
+  <div class="tw"><table class="wide-table">
+    <thead><tr><th>Escenario de S14</th><th>Qué mide en el caso</th><th>Cifra por ronda de 10 equipos</th></tr></thead>
+    <tbody>
+      <tr><td><b>B · Eficiencia de costos</b></td><td>Tiempo de ingenieros que deja de perderse en esperas y configuraciones y vuelve a la innovación.</td><td>$450.000 y 900 días-ingeniero, unos 4,1 FTE en un año de 220 días hábiles (1.1 y 1.2).</td></tr>
+      <tr><td><b>A · Aceleración de ingresos</b></td><td>Time to market: cada capacidad llega 18 días antes a producción. Es el Cost of Delay evitado.</td><td>180 días de mercado. Con una sola ronda paga la brecha si cada día de adelanto vale más de $4.833 (1.2).</td></tr>
+    </tbody>
+  </table></div>
+  <p class="table-hint">Desliza la tabla horizontalmente para ver todas las columnas.</p>
+  <p style="margin-top:.8rem">El escenario B es la parte visible. El Cost of Delay es el valor que la empresa deja de capturar cada día que una capacidad terminada no está en producción: un cliente que no se integra a la API, una ruta logística que no se ofrece, un ingreso que no se factura. El Golden Path adelanta cada entrega 18 días, y ese adelanto se repite en cada aprovisionamiento de cada equipo.</p>
+  <ol class="equipo-steps">
+    <li><b>El recorte es una decisión de costo fijo</b>Eliminar al equipo ahorra su nómina, pero el proceso vuelve a 20 días y a $50.000 por aprovisionamiento. La espera de los 10 equipos regresa a la cuenta de resultados como costo de oportunidad.</li>
+    <li><b>El beneficio escala con el uso</b>El costo de la plataforma es casi fijo y el ahorro crece con cada equipo y cada aprovisionamiento. Por eso el ROI se mide con la adopción (M5) y no con una única ronda.</li>
+    <li><b>El umbral es verificable</b>Con una sola ronda al año basta con que cada día de adelanto valga más de $4.833. El área de negocio puede validar esa cifra con el ingreso esperado de las capacidades del trimestre.</li>
+    <li><b>El caso de negocio se audita</b>Siguiendo el ciclo de modelado de valor de S14, el comité compara cada trimestre el ahorro estimado con el real y ajusta el alcance de la plataforma si la evidencia no lo respalda.</li>
+  </ol>
+  <p class="muted" style="margin-top:1rem">Hechos del caso: 5 ingenieros, 20 y 2 días, $500 diarios, 10 equipos y 12 ingenieros de plataforma. Supuestos del comité: la tarifa aplica también al equipo de plataforma, 220 días hábiles, al menos un aprovisionamiento por equipo y las frecuencias de la tabla. El caso no da el presupuesto de TI, así que no se puede afirmar qué parte del 15 % representa el equipo.</p>
+  </details>
+</section>
+
+<!-- II · TABLERO -->
+<section class="s" id="ii">
+  <div class="kicker"><span class="sec">II</span>Tablero de ecosistema de métricas</div>
+  <h2>Cinco señales: la entrega se anticipa y las personas se protegen</h2>
+  <p>El tablero que el comité presenta al CTO combina tres miradas complementarias de S14: DORA aporta datos objetivos de entrega, SPACE equilibra la velocidad con el bienestar y el KPI de producto muestra si los equipos eligen la plataforma. Cada señal tiene meta y una decisión asociada.</p>
+  <div class="board" role="group" aria-label="Maqueta del tablero del CTO">
+    <div class="board-head"><span>Tablero del CTO · Global Logistics API</span><span>revisión mensual · agregado por equipo</span></div>
+    <div class="board-grid">
+      <div class="board-group">
+        <div class="lbl">Entrega · DORA</div>
+        <div class="board-pair">
+          <div class="tile"><span class="ty">M2 · Leading</span><h3>Tiempo por etapa del pipeline</h3><p>p85 de integración, preproducción y esperas dentro del pipeline.</p><span class="goal">integración ≤ 15 min</span></div>
+          <div class="arrow"><b>→</b>anticipa</div>
+          <div class="tile"><span class="ty">M1 · Lagging</span><h3>Lead Time for Changes</h3><p>Del commit a producción, por equipo.</p><span class="goal">−30 % en dos trimestres</span></div>
+        </div>
+      </div>
+      <div class="board-group">
+        <div class="lbl">Personas · SPACE</div>
+        <div class="board-two">
+          <div class="tile s"><span class="ty">M3 · Satisfaction &amp; Well-being</span><h3>Satisfacción y bienestar</h3><p>Encuesta DevEx trimestral, anónima.</p><span class="goal">eNPS de plataforma &gt; 0</span></div>
+          <div class="tile s"><span class="ty">M4 · Efficiency &amp; Flow</span><h3>Horas de foco</h3><p>Bloques de 2 h sin reuniones ni tickets.</p><span class="goal">≥ 4 bloques por semana</span></div>
+        </div>
+      </div>
+      <div class="board-group">
+        <div class="lbl">Producto · KPI</div>
+        <div class="tile k"><span class="ty">M5 · KPI de producto</span><h3>Adopción voluntaria</h3><p>Equipos que eligen el Golden Path sobre los elegibles. Cada aprovisionamiento por la ruta vale $45.000.</p><span class="goal">sube cada trimestre sin mandato</span></div>
+      </div>
+    </div>
+    <div class="board-foot">Las metas son propuestas del comité. Las líneas base de M1, M3, M4 y M5 se miden en el primer mes; la de M2 parte de los 20 y 2 días del caso.</div>
+  </div>
+  <p class="brief-line"><strong>Regla de lectura:</strong> una mejora de M1 solo cuenta si M3 y M4 no empeoran, y M2 avisa antes de que M1 se mueva. Ninguna métrica se usa para evaluar a una persona.</p>
+  <details class="content-details"><summary>Ver el par DORA y por qué la señal líder anticipa</summary>
+  <h3 id="dora" class="sub" style="margin-top:.6rem">2.1 Par DORA: Lead Time for Changes y su señal predictiva</h3>
+  <p>Lead Time for Changes es una métrica rezagada: informa lo que ya pasó cuando el cambio llega a producción y el promedio del mes ya está cerrado. DORA lo mide desde el commit, y el aprovisionamiento inicial de un servicio ocurre antes del primer commit. Por eso el comité no atribuye al Golden Path una baja directa de M1 por ese aprovisionamiento.</p>
+  <p style="margin-top:.8rem">El Golden Path sí reduce M1 por otra vía: los entornos de preproducción, los accesos y las aprobaciones que antes exigían tickets en medio del pipeline pasan a ser autoservicio, y esas esperas forman parte del lead time de cada cambio. El aprovisionamiento inicial se mide aparte, desde la solicitud del entorno hasta el primer despliegue, y es la cifra que alimenta el cálculo financiero del bloque I.</p>
+  <div class="spec">
+    <div class="card accent"><h3><span class="tag green">M1 · Lagging</span>Lead Time for Changes</h3><dl>
+      <dt>Fórmula</dt><dd>Tiempo desde el commit hasta su ejecución en producción; p50 y p85 por equipo y mes. Definición DORA, sin incluir el aprovisionamiento inicial.</dd>
+      <dt>Fuente</dt><dd>Eventos de Git y del despliegue (CDEvents). Automática, sin encuestas.</dd>
+      <dt>Línea base</dt><dd>Se mide en las primeras cuatro semanas; el caso no la da.</dd>
+      <dt>Meta</dt><dd>−30 % del p85 en dos trimestres (propuesta).</dd>
+      <dt>Decisión</dt><dd>Si no mejora durante dos meses, revisar M2 para encontrar la etapa que retiene el flujo.</dd>
+    </dl></div>
+    <div class="card accent"><h3><span class="tag green">M2 · Leading</span>Tiempo por etapa y esperas externas</h3><dl>
+      <dt>Fórmula</dt><dd>p85 semanal de cada etapa del pipeline (build, pruebas unitarias, empaquetado, preproducción) y de las esperas externas dentro de él: entornos de preproducción, accesos y aprobaciones manuales.</dd>
+      <dt>Fuente</dt><dd>Eventos CDEvents / CloudEvents que emite cada etapa del pipeline y cada solicitud del portal, convertidos en series temporales.</dd>
+      <dt>Línea base</dt><dd>Etapas y esperas del pipeline: primeras cuatro semanas. Aparte, el aprovisionamiento inicial: 20 días manual y 2 días con Golden Path (caso).</dd>
+      <dt>Meta</dt><dd>Esperas externas por autoservicio en ≤ 2 días; integración y pruebas en ≤ 15 minutos (propuesta).</dd>
+      <dt>Decisión</dt><dd>Si el p85 de una etapa sube 20 % dos semanas seguidas, esa etapa pasa al primer lugar del backlog de plataforma.</dd>
+    </dl></div>
+  </div>
+  <div class="callout g"><h3>Por qué M2 anticipa a M1</h3><p>El lead time de un cambio es la suma de sus etapas y sus esperas. M2 mide esas partes en cada ejecución, días o semanas antes de que el cambio llegue a producción y se refleje en M1. Además señala dónde actuar: M1 dice que la entrega se volvió lenta, y M2 dice si fue el build, las pruebas, una aprobación o la espera de un entorno de preproducción. Esa es la relación R1 del diagrama 2.4.</p></div>
+  </details>
+  <details class="content-details"><summary>Ver las dos métricas SPACE y cómo protegen a las personas</summary>
+  <h3 id="space" class="sub" style="margin-top:.6rem">2.2 Dos métricas SPACE como salvaguarda humana</h3>
+  <p>SPACE recuerda que la productividad no cabe en una sola métrica. El comité elige dos dimensiones que DORA no ve: cómo se sienten las personas y si tienen tiempo para pensar. Su función en el tablero es de contrapeso: impiden que la presión por bajar M1 se pague con horas extra o agotamiento.</p>
+  <div class="spec">
+    <div class="card amber"><h3><span class="tag amber">M3 · S</span>Satisfacción y bienestar</h3><dl>
+      <dt>Fórmula</dt><dd>Encuesta DevEx trimestral: eNPS de la plataforma y percepción de carga y agotamiento (escala 1–5).</dd>
+      <dt>Fuente</dt><dd>Encuesta anónima, agregada por equipo con un mínimo de cinco respuestas.</dd>
+      <dt>Meta</dt><dd>eNPS de plataforma mayor que cero y en ascenso; menos personas que reportan agotamiento frecuente.</dd>
+      <dt>Protege</dt><dd>Detecta si la velocidad se logra a costa de la salud del equipo y da voz al desarrollador como cliente de la plataforma.</dd>
+      <dt>Decisión</dt><dd>Una caída de 10 puntos abre entrevistas con ese equipo antes de exigir más velocidad.</dd>
+    </dl></div>
+    <div class="card amber"><h3><span class="tag amber">M4 · E</span>Eficiencia y flujo: horas de foco</h3><dl>
+      <dt>Fórmula</dt><dd>Bloques semanales de al menos 2 horas sin reuniones ni interrupciones operativas, promedio del equipo; se complementa con los traspasos por cambio.</dd>
+      <dt>Fuente</dt><dd>Calendario agregado y la pregunta de interrupciones de la encuesta.</dd>
+      <dt>Meta</dt><dd>Al menos cuatro bloques por semana (propuesta).</dd>
+      <dt>Protege</dt><dd>El tiempo de concentración que exige el trabajo de ingeniería. Las configuraciones manuales y los tickets lo fragmentan.</dd>
+      <dt>Decisión</dt><dd>Si M4 baja mientras M1 mejora, el ritmo no es sostenible y se ajusta el alcance.</dd>
+    </dl></div>
+  </div>
+  <div class="callout o"><h3>Límites de uso</h3><p>M3 y M4 se publican solo por equipo y por sistema, nunca por persona. No alimentan la evaluación de desempeño ni comparan individuos. El diseño de la encuesta y del calendario agregado se acuerda con el área de protección de datos, como advierte S14 sobre la privacidad laboral. Medir commits o PR por persona convertiría SPACE en vigilancia y se descarta.</p></div>
+  </details>
+  <details class="content-details"><summary>Ver el KPI de producto y el mapa de señales del tablero</summary>
+  <h3 id="kpi" class="sub" style="margin-top:.6rem">2.3 KPI de producto: adopción voluntaria del Golden Path</h3>
+  <div class="spec">
+    <div class="card"><h3><span class="tag">M5 · KPI</span>Adopción voluntaria</h3><dl>
+      <dt>Fórmula</dt><dd>Equipos que eligen el Golden Path para su nueva infraestructura ÷ equipos elegibles × 100.</dd>
+      <dt>Fuente</dt><dd>Repositorios y entornos creados con plantillas del portal frente a aprovisionamientos manuales y tickets. Se acompaña de dos señales de S14: la <b>tasa de autoservicio</b> (operaciones completadas de extremo a extremo sin intervención humana) y la <b>correlación inversa con tickets</b> (a más adopción, menos solicitudes de entornos y accesos).</dd>
+      <dt>Línea base</dt><dd>10 equipos usan hoy la ruta. El total de equipos elegibles se censa en el primer mes.</dd>
+      <dt>Meta</dt><dd>Crecer cada trimestre sin mandato. Una caída súbita indica una plantilla rota u obsoleta.</dd>
+      <dt>Lectura financiera</dt><dd>Aprovisionamientos por la ruta × $45.000 = ahorro realizado del período. Así el KPI de producto alimenta el caso de negocio del bloque I.</dd>
+    </dl></div>
+    <div class="card"><h3>Alternativa evaluada: Cost per Change</h3><p>Cost per Change (TCO de la plataforma ÷ cambios exitosos) es la métrica económica más directa de S14. Hoy no se puede calcular con honestidad: el caso no informa el volumen de cambios ni el TCO completo de nube y licencias. Además, S14 muestra que el costo por cambio sube antes de desplomarse: en las primeras adopciones la inversión se reparte entre pocas aplicaciones. Medirlo hoy castigaría al equipo justo en la fase en que la junta lo evalúa.</p><p>Se elige la adopción porque explica el resto del tablero: sin elección voluntaria no hay ahorro, ni reducción de esperas, ni retiro del Shadow IT. Cost per Change se incorpora en la fase 3, cuando existan seis meses de datos de despliegue.</p></div>
+  </div>
+
+  <h3 id="mapa" class="sub">2.4 Mapa de señales del tablero</h3>
+  <figure id="tablero">
+    <div class="diagram-viewer">
+      <div class="diagram-viewer-toolbar"><button type="button" data-zoom="in" aria-label="Ampliar diagrama">+ Zoom</button><button type="button" data-zoom="out" aria-label="Reducir diagrama">− Zoom</button><button type="button" data-zoom="fit">Ajustar</button></div>
+      <div class="diagram-viewer-stage" style="aspect-ratio:1100 / 800">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 800" width="1100" height="800" role="img" aria-labelledby="tablero-title tablero-desc">
+<title id="tablero-title">Tablero del CTO y origen de cada señal</title>
+<desc id="tablero-desc">Flujo de entrega del Golden Path en cinco etapas. M2, señal líder, se captura en integración, preproducción y código; M1, Lead Time for Changes, en producción. M3 y M4 de SPACE equilibran la velocidad. M5, adopción voluntaria, explica la reducción de esperas. Las relaciones R1 a R3 se detallan en la tabla 2.4.</desc>
+<defs><marker id="arr-ink" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#18232A"/></marker>
+<marker id="arr-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#22675A"/></marker>
+<marker id="arr-ochre" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#9A6B2F"/></marker></defs>
+<rect width="1100" height="800" fill="#FFFFFF"/>
+<rect x="30" y="90" width="1040" height="170" rx="10" fill="#E6ECE8" stroke="#18232A" stroke-width="2"/>
+<rect x="50" y="140" width="184" height="90" rx="10" fill="#FFFFFF" stroke="#18232A" stroke-width="2"/>
+<rect x="254" y="140" width="184" height="90" rx="10" fill="#FFFFFF" stroke="#18232A" stroke-width="2"/>
+<rect x="458" y="140" width="184" height="90" rx="10" fill="#FFFFFF" stroke="#18232A" stroke-width="2"/>
+<rect x="662" y="140" width="184" height="90" rx="10" fill="#FFFFFF" stroke="#18232A" stroke-width="2"/>
+<rect x="866" y="140" width="184" height="90" rx="10" fill="#FFFFFF" stroke="#18232A" stroke-width="2"/>
+<rect x="254" y="300" width="500" height="100" rx="10" fill="#EEF5F2" stroke="#22675A" stroke-width="2"/>
+<rect x="890" y="300" width="180" height="100" rx="10" fill="#FFFFFF" stroke="#22675A" stroke-width="2"/>
+<rect x="30" y="470" width="520" height="190" rx="10" fill="#FBF6EE" stroke="#9A6B2F" stroke-width="2"/>
+<rect x="50" y="520" width="230" height="120" rx="10" fill="#FFFFFF" stroke="#9A6B2F" stroke-width="2"/>
+<rect x="300" y="520" width="230" height="120" rx="10" fill="#FFFFFF" stroke="#9A6B2F" stroke-width="2"/>
+<rect x="570" y="470" width="500" height="190" rx="10" fill="#FFFFFF" stroke="#18232A" stroke-width="2"/>
+<rect x="590" y="520" width="460" height="120" rx="10" fill="#FFFFFF" stroke="#18232A" stroke-width="2"/>
+<polyline points="234,185 254,185" fill="none" stroke="#18232A" stroke-width="2.5" stroke-linejoin="round" marker-end="url(#arr-ink)"/>
+<polyline points="438,185 458,185" fill="none" stroke="#18232A" stroke-width="2.5" stroke-linejoin="round" marker-end="url(#arr-ink)"/>
+<polyline points="642,185 662,185" fill="none" stroke="#18232A" stroke-width="2.5" stroke-linejoin="round" marker-end="url(#arr-ink)"/>
+<polyline points="846,185 866,185" fill="none" stroke="#18232A" stroke-width="2.5" stroke-linejoin="round" marker-end="url(#arr-ink)"/>
+<polyline points="300,300 300,230" fill="none" stroke="#22675A" stroke-width="2.5" stroke-linejoin="round" stroke-dasharray="7 5"/>
+<polyline points="500,300 500,230" fill="none" stroke="#22675A" stroke-width="2.5" stroke-linejoin="round" stroke-dasharray="7 5"/>
+<polyline points="700,300 700,230" fill="none" stroke="#22675A" stroke-width="2.5" stroke-linejoin="round" stroke-dasharray="7 5"/>
+<polyline points="958,300 958,230" fill="none" stroke="#22675A" stroke-width="2.5" stroke-linejoin="round" stroke-dasharray="7 5"/>
+<polyline points="754,350 890,350" fill="none" stroke="#22675A" stroke-width="2.5" stroke-linejoin="round" marker-end="url(#arr-green)"/>
+<polyline points="290,470 290,400" fill="none" stroke="#9A6B2F" stroke-width="2.5" stroke-linejoin="round" stroke-dasharray="7 5" marker-end="url(#arr-ochre)"/>
+<polyline points="980,470 980,400" fill="none" stroke="#18232A" stroke-width="2.5" stroke-linejoin="round" marker-end="url(#arr-ink)"/>
+<rect x="800" y="318" width="32.4" height="25" rx="4" fill="#FFFFFF" stroke="#22675A" stroke-width="1"/>
+<text x="806" y="336" font-family="Arial, sans-serif" font-size="17" font-weight="700" fill="#22675A">R1</text>
+<rect x="302" y="422" width="32.4" height="25" rx="4" fill="#FFFFFF" stroke="#9A6B2F" stroke-width="1"/>
+<text x="308" y="440" font-family="Arial, sans-serif" font-size="17" font-weight="700" fill="#9A6B2F">R2</text>
+<rect x="992" y="422" width="32.4" height="25" rx="4" fill="#FFFFFF" stroke="#18232A" stroke-width="1"/>
+<text x="998" y="440" font-family="Arial, sans-serif" font-size="17" font-weight="700" fill="#18232A">R3</text>
+<text x="30" y="35" font-family="Arial, sans-serif" font-size="25" font-weight="700" fill="#18232A">TO-BE · Tablero del CTO y origen de cada señal</text>
+<text x="30" y="64" font-family="Arial, sans-serif" font-size="18" font-weight="400" fill="#56645E">Cinco métricas (M1–M5) y tres relaciones (R1–R3) que se desarrollan en la tabla 2.4.</text>
+<text x="46" y="117" font-family="Arial, sans-serif" font-size="19" font-weight="700" fill="#18232A">FLUJO DE ENTREGA · GOLDEN PATH</text>
+<text x="66" y="178" font-family="Arial, sans-serif" font-size="19" font-weight="700" fill="#18232A">Plantilla</text>
+<text x="66" y="204" font-family="Arial, sans-serif" font-size="17" font-weight="400" fill="#56645E">autoservicio</text>
+<text x="270" y="178" font-family="Arial, sans-serif" font-size="19" font-weight="700" fill="#18232A">Código</text>
+<text x="270" y="204" font-family="Arial, sans-serif" font-size="17" font-weight="400" fill="#56645E">commit del equipo</text>
+<text x="474" y="178" font-family="Arial, sans-serif" font-size="19" font-weight="700" fill="#18232A">Integración</text>
+<text x="474" y="204" font-family="Arial, sans-serif" font-size="17" font-weight="400" fill="#56645E">build y pruebas</text>
+<text x="678" y="178" font-family="Arial, sans-serif" font-size="19" font-weight="700" fill="#18232A">Preproducción</text>
+<text x="678" y="204" font-family="Arial, sans-serif" font-size="17" font-weight="400" fill="#56645E">entorno efímero</text>
+<text x="882" y="178" font-family="Arial, sans-serif" font-size="19" font-weight="700" fill="#18232A">Producción</text>
+<text x="882" y="204" font-family="Arial, sans-serif" font-size="17" font-weight="400" fill="#56645E">despliegue</text>
+<text x="270" y="327" font-family="Arial, sans-serif" font-size="19" font-weight="700" fill="#18232A">M2 · Leading · Tiempo por etapa</text>
+<text x="270" y="352" font-family="Arial, sans-serif" font-size="17" font-weight="400" fill="#56645E">p85 de cada etapa y de sus esperas externas</text>
+<text x="270" y="377" font-family="Arial, sans-serif" font-size="17" font-weight="400" fill="#56645E">se mide en cada ejecución, antes de producción</text>
+<text x="906" y="327" font-family="Arial, sans-serif" font-size="19" font-weight="700" fill="#18232A">M1 · Lagging</text>
+<text x="906" y="352" font-family="Arial, sans-serif" font-size="17" font-weight="400" fill="#56645E">Lead Time</text>
+<text x="906" y="377" font-family="Arial, sans-serif" font-size="17" font-weight="400" fill="#56645E">for Changes</text>
+<text x="46" y="497" font-family="Arial, sans-serif" font-size="19" font-weight="700" fill="#18232A">PERSONAS · SPACE · SALVAGUARDA</text>
+<text x="66" y="547" font-family="Arial, sans-serif" font-size="19" font-weight="700" fill="#18232A">M3 · SPACE · S</text>
+<text x="66" y="572" font-family="Arial, sans-serif" font-size="17" font-weight="400" fill="#56645E">Satisfacción y</text>
+<text x="66" y="597" font-family="Arial, sans-serif" font-size="17" font-weight="400" fill="#56645E">bienestar</text>
+<text x="66" y="622" font-family="Arial, sans-serif" font-size="17" font-weight="400" fill="#56645E">encuesta trimestral</text>
+<text x="316" y="547" font-family="Arial, sans-serif" font-size="19" font-weight="700" fill="#18232A">M4 · SPACE · E</text>
+<text x="316" y="572" font-family="Arial, sans-serif" font-size="17" font-weight="400" fill="#56645E">Eficiencia y flujo</text>
+<text x="316" y="597" font-family="Arial, sans-serif" font-size="17" font-weight="400" fill="#56645E">horas de foco</text>
+<text x="316" y="622" font-family="Arial, sans-serif" font-size="17" font-weight="400" fill="#56645E">por semana</text>
+<text x="586" y="497" font-family="Arial, sans-serif" font-size="19" font-weight="700" fill="#18232A">PRODUCTO · KPI</text>
+<text x="606" y="547" font-family="Arial, sans-serif" font-size="19" font-weight="700" fill="#18232A">M5 · Adopción voluntaria</text>
+<text x="606" y="572" font-family="Arial, sans-serif" font-size="17" font-weight="400" fill="#56645E">equipos que eligen el Golden Path ÷ elegibles</text>
+<text x="606" y="597" font-family="Arial, sans-serif" font-size="17" font-weight="400" fill="#56645E">lectura financiera: aprovisionamientos × $45.000</text>
+<text x="606" y="622" font-family="Arial, sans-serif" font-size="17" font-weight="400" fill="#56645E">una caída súbita delata una plantilla rota</text>
+<text x="30" y="700" font-family="Arial, sans-serif" font-size="17" font-weight="400" fill="#18232A">Línea continua: flujo o efecto · Línea discontinua: punto donde se captura la señal</text>
+<text x="30" y="728" font-family="Arial, sans-serif" font-size="17" font-weight="400" fill="#56645E">R1 anticipa: M2 cambia antes que M1 · R2 equilibra: una mejora de M1 no cuenta si M3 o M4 empeoran</text>
+<text x="30" y="756" font-family="Arial, sans-serif" font-size="17" font-weight="400" fill="#56645E">R3 explica: quien adopta el Golden Path deja de esperar entornos y accesos dentro del pipeline</text>
+<text x="30" y="784" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#56645E">Verde: entrega (DORA) · Ocre: personas (SPACE) · Negro: producto y negocio</text>
+</svg>
+      </div>
+    </div>
+    <figcaption><b>TO-BE.</b> El flujo de entrega aparece arriba; las líneas discontinuas marcan dónde se captura cada señal. M2 se mide en el camino y M1 al final. Los contenedores de abajo equilibran (SPACE) y explican (adopción) lo que muestra la entrega. Las relaciones R1–R3 se detallan en la tabla siguiente.</figcaption>
+  </figure>
+  <div class="tw"><table class="wide-table">
+    <thead><tr><th>Relación</th><th>Qué afirma</th><th>Cómo se usa en la revisión</th></tr></thead>
+    <tbody>
+      <tr><td><b>R1</b> · M2 → M1</td><td>La señal líder anticipa el lead time: una etapa que se degrada hoy aumenta el lead time de las próximas semanas.</td><td>Se actúa sobre la etapa antes de que el promedio mensual de M1 se deteriore.</td></tr>
+      <tr><td><b>R2</b> · SPACE → entrega</td><td>La velocidad tiene un límite humano: M3 y M4 son condiciones para dar por buena una mejora de M1 o M2.</td><td>Si M1 mejora y M3 o M4 caen, la mejora no se celebra y se revisa el ritmo.</td></tr>
+      <tr><td><b>R3</b> · M5 → M1</td><td>Cada equipo que adopta el Golden Path deja de esperar entornos, accesos y aprobaciones manuales dentro del pipeline; esas esperas son parte de su lead time.</td><td>Se cruza la adopción con el lead time por equipo para atribuir la mejora a la plataforma.</td></tr>
+    </tbody>
+  </table></div>
+  <p class="table-hint">Desliza la tabla horizontalmente para ver todas las columnas.</p>
+  </details>
+</section>
+
+<!-- III · DEVEX -->
+<section class="s" id="iii">
+  <div class="kicker"><span class="sec">III</span>Definición de DevEx</div>
+  <h2>Cuando el camino oficial es el más corto, el Shadow IT pierde su razón</h2>
+  <p>DORA mide la entrega y SPACE la productividad; DevEx explica la causa: cómo vive el desarrollador su trabajo diario. El Golden Path es una abstracción. El equipo declara qué necesita y la plataforma resuelve cómo. Eso actúa sobre las dos dimensiones que pide el enunciado.</p>
+  <div class="grid three-grid summary-grid">
+    <div class="card accent"><h3>Retroalimentación en días, no en semanas</h3><p>El equipo sabe en 2 días, y no en 20, si su infraestructura funciona. El pipeline valida cada cambio en minutos y no en una revisión manual al final.</p></div>
+    <div class="card accent"><h3>Menos decisiones ajenas al negocio</h3><p>Red, permisos, secretos, pipeline y observabilidad vienen resueltos por defecto. El equipo decide unos pocos parámetros de su servicio.</p></div>
+    <div class="card accent"><h3>Elección, no obligación</h3><p>El atajo deja de ser más rápido que la ruta oficial. Quien sale de ella lo hace por una vía legítima y su necesidad entra al backlog de la plataforma.</p></div>
+  </div>
+  <p class="brief-line"><strong>Principio de diseño:</strong> el Shadow IT es un síntoma de fricción, no de indisciplina. Se reduce quitando la fricción que lo produce, no castigando a quien la evita.</p>
+  <details class="content-details"><summary>Ver el ciclo de retroalimentación y la carga cognitiva</summary>
+  <h3 id="feedback" class="sub" style="margin-top:.6rem">3.1 El Golden Path acorta el ciclo de retroalimentación</h3>
+  <p>Un bucle de retroalimentación es el tiempo entre una acción del desarrollador y la respuesta que le dice si funcionó. Sin plataforma, el primer bucle tarda 20 días, y cada error de configuración reinicia la espera con un nuevo ticket. Mientras tanto, el desarrollador cambia de tarea y pierde el contexto.</p>
+  <div class="tw"><table class="wide-table">
+    <thead><tr><th>Bucle</th><th>Sin plataforma</th><th>Con Golden Path</th><th>Señal en el tablero</th></tr></thead>
+    <tbody>
+      <tr><td>Obtener un entorno listo</td><td>20 días entre tickets, colas y configuración manual</td><td>2 días por autoservicio desde la plantilla</td><td>Aprovisionamiento inicial, medido aparte desde la solicitud (bloque I)</td></tr>
+      <tr><td>Saber si la configuración es correcta</td><td>Al final, cuando otro equipo la revisa o falla en producción</td><td>En cada ejecución del pipeline: pruebas, escaneo y políticas</td><td>M2 · tiempo por etapa</td></tr>
+      <tr><td>Saber si el despliegue funcionó</td><td>Por reportes de otro equipo o de un usuario</td><td>Observabilidad incluida en la plantilla desde el primer día</td><td>M1 y tiempo de recuperación</td></tr>
+      <tr><td>Hacer saber qué estorba</td><td>No existe un canal</td><td>Encuesta DevEx trimestral y backlog público de la plataforma</td><td>M3</td></tr>
+    </tbody>
+  </table></div>
+  <p class="table-hint">Desliza la tabla horizontalmente para ver todas las columnas.</p>
+
+  <h3 id="carga" class="sub">3.2 El Golden Path reduce la carga cognitiva extrínseca</h3>
+  <p>La carga cognitiva extrínseca es el esfuerzo mental que exige algo ajeno al problema de negocio: configuraciones complejas, herramientas fragmentadas y detalles de bajo nivel. La abstracción no elimina esa complejidad: la traslada a un equipo especializado que la resuelve una vez para todos.</p>
+  <div class="grid two-grid" style="margin-top:1rem">
+    <div class="card warn"><h3>Sin plataforma · lo decide cada equipo</h3><ul class="clean">
+      <li>Redes, subredes y reglas de acceso</li><li>Identidades, roles y permisos (IAM)</li><li>Gestión y rotación de secretos</li><li>Pipeline de CI/CD y sus scripts</li><li>Observabilidad, alertas y registros</li><li>Controles de seguridad y cumplimiento</li></ul></div>
+    <div class="card accent"><h3>Con Golden Path · lo declara el equipo</h3><ul class="check">
+      <li>Nombre y dueño del servicio</li><li>Runtime de la plantilla</li><li>Si necesita base de datos</li><li>Tamaño del entorno</li></ul><p class="muted" style="font-size:.92rem">Lo demás llega configurado con valores seguros por defecto. La lista es un ejemplo de plantilla, no una especificación del caso.</p></div>
+  </div>
+  <p style="margin-top:1rem">Con menos decisiones de infraestructura, el equipo dedica su memoria de trabajo al dominio logístico y gana horas de foco (M4). Los 90 días-ingeniero que cada aprovisionamiento deja de consumir son la expresión financiera de esa carga eliminada.</p>
+  <h3 id="devex-medidas" class="sub">3.3 Cómo se comprueba la mejora de DevEx</h3>
+  <p>El marco DevEx de S14 mide cada dimensión con datos del sistema y con la percepción del desarrollador. Las preguntas subjetivas forman parte de la encuesta de M3; las objetivas salen del pipeline y del gestor de incidencias.</p>
+  <div class="tw"><table class="wide-table">
+    <thead><tr><th>Dimensión DevEx</th><th>Medidas objetivas</th><th>Medidas subjetivas (encuesta M3)</th><th>Qué debería mostrar el Golden Path</th></tr></thead>
+    <tbody>
+      <tr><td><b>Bucles de retroalimentación</b></td><td>Cycle time, frecuencia de despliegue, MTTR, tiempo de revisión</td><td>¿La respuesta del pipeline es directa, accionable y comprensible?</td><td>Respuestas en minutos y errores que se explican solos, sin abrir un ticket</td></tr>
+      <tr><td><b>Carga cognitiva</b></td><td>Tiempo de debugging, bugs reabiertos, dependencias por cambio</td><td>% del tiempo en código frente a tareas operativas; cambios de contexto por semana</td><td>Más tiempo en el dominio logístico y menos en infraestructura</td></tr>
+      <tr><td><b>Estado de flujo</b></td><td>Commits reabiertos, change requests, commits por PR</td><td>Interrupciones, estrés y autonomía técnica</td><td>Más horas de foco (M4) y menos interrupciones por esperas</td></tr>
+    </tbody>
+  </table></div>
+  <p class="table-hint">Desliza la tabla horizontalmente para ver todas las columnas.</p>
+  </details>
+  <details class="content-details"><summary>Ver por qué esta experiencia desincentiva el Shadow IT</summary>
+  <h3 id="shadow-it" class="sub" style="margin-top:.6rem">3.4 Del Golden Path a la prevención orgánica del Shadow IT</h3>
+  <p>Los ingenieros buscan alternativas cuando el camino oficial es más lento que el atajo. Frente a 20 días de espera, una cuenta en la nube abierta por fuera y configurada en una tarde parece racional. Esa decisión tiene costos que nadie ve: infraestructura sin controles, sin dueño en el catálogo y sin soporte.</p>
+  <ol class="equipo-steps">
+    <li class="bad"><b>1. Fricción</b>El proceso oficial tarda 20 días y exige tickets a varios equipos.</li>
+    <li class="bad"><b>2. Atajo</b>El equipo crea su propia infraestructura por fuera para cumplir su compromiso.</li>
+    <li><b>3. Camino más corto</b>Con 2 días, controles incluidos y sin tickets, el atajo deja de ahorrar tiempo y obliga a mantener lo que la plataforma ya da.</li>
+    <li><b>4. Elección</b>Los equipos adoptan la ruta porque es mejor. M5 sube sin mandato y M3 lo confirma.</li>
+  </ol>
+  <div class="guard-grid">
+    <div class="guard-card"><span class="guard-number">1</span><div><h3>El camino oficial es el más rápido</h3><p>Mantener el aprovisionamiento en 2 días o menos y las esperas de M2 bajas es en realidad una meta contra el Shadow IT: mientras se cumpla, el atajo no compite.</p></div></div>
+    <div class="guard-card"><span class="guard-number">2</span><div><h3>Salida legítima sin penalización</h3><p>Quien necesita algo fuera de la ruta lo pide por una vía documentada con controles mínimos (catálogo, secretos gestionados, escaneo). Salir no es incumplir.</p></div></div>
+    <div class="guard-card"><span class="guard-number">3</span><div><h3>El Shadow IT como señal de producto</h3><p>Una cuenta o un recurso fuera del catálogo, detectado por facturación, abre una conversación con el equipo. La necesidad que lo motivó entra al backlog de la plataforma.</p></div></div>
+    <div class="guard-card"><span class="guard-number">4</span><div><h3>Medir la elección, no el cumplimiento</h3><p>M5 cuenta solo la adopción voluntaria y M3 recoge por qué un equipo no adopta. Una caída de M5 se trata como un defecto de la plataforma.</p></div></div>
+  </div>
+  <div class="guard-outcome"><strong>Resultado esperado</strong><span>los equipos usan el Golden Path porque reduce su espera y su carga, no porque se les obligue. El Shadow IT disminuye porque deja de ser conveniente.</span></div>
+  <div class="callout"><h3>Lo que el comité descarta</h3><ul class="cross"><li>Bloquear cuentas o auditar para sancionar: esconde el síntoma y empuja el Shadow IT a lugares menos visibles.</li><li>Imponer el Golden Path por mandato: infla M5 sin reflejar la elección real y enmascara las carencias de la plataforma.</li><li>Medir la productividad individual para encontrar a «quien se sale»: viola la salvaguarda de SPACE.</li></ul></div>
+  </details>
+</section>
+
+<!-- CIERRE -->
+<section class="s" id="cierre">
+  <div class="kicker">Cierre del comité</div>
+  <h2>Mantener al equipo y medir su retorno cada trimestre</h2>
+  <p>El comité recomienda excluir al Platform Engineering Team del recorte y someterlo a una regla verificable: su presupuesto se sostiene mientras el tablero muestre retorno. Los horizontes son propuestas que se ajustan con la evidencia. Siguiendo el paso 4 del ciclo de valor de S14, el caso se presenta en el lenguaje de la inversión (retorno, riesgo y costo por cambio), con supuestos acordados con Finanzas y dos horizontes: 1 año para el ahorro de espera y 3 años para el Cost of Delay y el costo por cambio, que solo baja cuando la plataforma madura.</p>
+  <div class="grid three-grid summary-grid">
+    <div class="card accent"><h3>0–1 mes · Línea base</h3><p>Instrumentar el pipeline y el portal, censar equipos elegibles, obtener el costo real del equipo y aplicar la primera encuesta.</p></div>
+    <div class="card accent"><h3>1–3 meses · Tablero en operación</h3><p>Revisión mensual con el CTO, con umbrales y decisiones asociados a cada señal.</p></div>
+    <div class="card accent"><h3>3–6 meses · Informe a la junta</h3><p>Comparar el ahorro estimado con el real, ajustar el alcance e incorporar Cost per Change.</p></div>
+  </div>
+  <details class="content-details"><summary>Ver la respuesta a la junta y la hoja de ruta</summary>
+  <h3 id="trazabilidad" class="sub" style="margin-top:.6rem">Respuesta a las preguntas de la junta</h3>
+  <div class="tw"><table class="wide-table">
+    <thead><tr><th>Pregunta de la junta</th><th>Respuesta del comité</th><th>Cómo se demuestra</th></tr></thead>
+    <tbody>
+      <tr><td>¿Qué produce un equipo que no construye características?</td><td>Elimina $45.000 de espera por aprovisionamiento y adelanta 18 días cada entrega.</td><td>M5 × $45.000 = ahorro realizado del trimestre.</td></tr>
+      <tr><td>¿Se paga el equipo?</td><td>Con tres aprovisionamientos por equipo al año cubre su costo estimado, sin contar el Cost of Delay.</td><td>Conteo de aprovisionamientos por la ruta y costo real del equipo (Finanzas).</td></tr>
+      <tr><td>¿Acelera la entrega?</td><td>Sí, y se detecta antes de producción.</td><td>M2 semanal y M1 mensual por equipo.</td></tr>
+      <tr><td>¿A qué costo humano?</td><td>Ninguna mejora cuenta si deteriora el bienestar o el foco.</td><td>M3 trimestral y M4 por equipo.</td></tr>
+      <tr><td>¿La usan de verdad?</td><td>Solo cuenta la adopción voluntaria; el Shadow IT se trata como señal.</td><td>M5 y recursos fuera del catálogo en facturación.</td></tr>
+    </tbody>
+  </table></div>
+  <p class="table-hint">Desliza la tabla horizontalmente para ver todas las columnas.</p>
+  <h3 id="hoja-ruta" class="sub">Hoja de ruta y condiciones de avance</h3>
+  <div class="tw"><table class="wide-table">
+    <thead><tr><th>Fase</th><th>Resultado y responsables</th><th>Condición de avance</th></tr></thead>
+    <tbody>
+      <tr><td><b>1 · Línea base</b><br>Mes 0–1</td><td>Plataforma instrumenta eventos de Git, pipeline y portal. El PPM censa los equipos elegibles. Finanzas entrega el costo real del equipo. Personas y protección de datos aprueban la encuesta.</td><td>Las cinco métricas tienen línea base y fuente automática o encuesta aprobada.</td></tr>
+      <tr><td><b>2 · Operación</b><br>Meses 1–3</td><td>El CTO revisa el tablero cada mes. Plataforma prioriza su backlog con M2 y M3. Los equipos reciben su propio tablero agregado.</td><td>Tres revisiones mensuales con decisiones registradas y umbrales calibrados.</td></tr>
+      <tr><td><b>3 · Validación</b><br>Meses 3–6</td><td>El comité presenta a la junta el ahorro realizado frente al estimado y el Cost of Delay validado por negocio. Se agrega Cost per Change. Cualquier capacidad nueva de la plataforma se financia primero como TVP con early adopters y compite en el backlog por su ROI.</td><td>Ahorro realizado ≥ costo proporcional del equipo, o un plan de ajuste de alcance aprobado.</td></tr>
+    </tbody>
+  </table></div>
+  <p class="table-hint">Desliza la tabla horizontalmente para ver todas las columnas.</p>
+  </details>
+  <details class="content-details"><summary>Ver riesgos y supuestos</summary>
+  <h3 id="riesgos" class="sub" style="margin-top:.6rem">Riesgos de la medición</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Riesgo</th><th>Tratamiento y señal de decisión</th></tr></thead>
+    <tbody>
+      <tr><td>La métrica se vuelve el objetivo y se maquilla (ley de Goodhart)</td><td>Ninguna métrica se lee sola: R1 y R2 cruzan entrega y personas. Una mejora aislada que no se refleja en las demás se audita.</td></tr>
+      <tr><td>Uso individual de SPACE</td><td>Solo agregados de equipo con un mínimo de cinco respuestas; acuerdo con protección de datos; fuera de la evaluación de desempeño.</td></tr>
+      <tr><td>Menos aprovisionamientos de los supuestos</td><td>La tabla de sensibilidad fija el umbral de Cost of Delay. Si negocio no lo valida, se reduce el alcance de la plataforma a lo de mayor uso.</td></tr>
+      <tr><td>Adopción forzada que infla M5</td><td>M5 excluye a los equipos con mandato y se contrasta con la satisfacción de M3.</td></tr>
+    </tbody>
+  </table></div>
+  <h3 id="supuestos" class="sub">Supuestos a validar</h3>
+  <ul class="check">
+    <li>Los $500 diarios son costo cargado por ingeniero y aplican también a los 12 ingenieros de plataforma: $1.320.000 al año en 220 días hábiles, sin nube ni licencias.</li>
+    <li>Los 5 ingenieros de un equipo dedican los 20 días a esperas y configuraciones, como indica el caso.</li>
+    <li>Cada uno de los 10 equipos realiza al menos un aprovisionamiento; la frecuencia anual se mide en la fase 1.</li>
+    <li>Las metas de M1 a M5 son propuestas del comité y se recalibran con la línea base.</li>
+  </ul>
+  </details>
+  <div class="callout g"><h3>Acuerdo propuesto</h3><p>Mantener al Platform Engineering Team fuera del recorte del 15 % durante dos trimestres y condicionar su presupuesto al tablero: ahorro realizado (M5 × $45.000), lead time en descenso sin deterioro de M3 y M4, y adopción voluntaria en ascenso. Si al sexto mes el ahorro realizado no cubre el costo proporcional del equipo y negocio no valida el Cost of Delay, el comité propondrá reducir el alcance de la plataforma con la misma evidencia.</p></div>
+  <details class="equipo-details"><summary>Referencias y fundamento conceptual</summary>
+    <p>Universidad de los Andes. <i>Hoja de trabajo No. 12, ARTI-4219 Arquitectura de Plataformas, 2026-20</i>. Contexto y requisitos del caso Global Logistics API.</p>
+    <p>Material del curso. <i>S14 – Medir el éxito de la plataforma</i>. Modelo de valor, métricas rezagadas y predictivas, Cost per Change, adopción voluntaria, SPACE y DevEx.</p>
+    <p>Fournier, C. y Nowland, I. (2024). <i>Platform Engineering: A Guide for Technical, Product, and People Leaders</i>. O'Reilly.</p>
+    <p>Oliver, B., Cheneweth, N., Chankramath, A. y Alvarez, S. (2025). <i>Effective Platform Engineering</i>. Manning Publications.</p>
+    <p>Körbächer, M., Grabner, A. y Lipsig, H. (2024). <i>Platform Engineering for Architects: Crafting modern platforms as a product</i>. Packt Publishing.</p>
+    <p>Forsgren, N., Humble, J. y Kim, G. (2018). <i>Accelerate</i>. IT Revolution.</p>
+    <p>Forsgren, N., Storey, M.-A., Maddila, C., Zimmermann, T., Houck, B. y Butler, J. (2021). The SPACE of Developer Productivity. <i>ACM Queue</i>, 19(1).</p>
+    <p>Noda, A., Storey, M.-A., Forsgren, N. y Greiler, M. (2023). DevEx: What Actually Drives Productivity. <i>ACM Queue</i>, 21(2).</p>
+    <p>Reinertsen, D. (2009). <i>The Principles of Product Development Flow</i>. Celeritas. Fundamento del Cost of Delay.</p>
+  </details>
+</section>
+
+</main>
+
+<footer style="position:relative;z-index:1;max-width:calc(var(--content-max) + 2 * var(--page-gutter));margin:0 auto;padding:2rem var(--page-gutter);font-family:'JetBrains Mono',monospace;font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);display:flex;justify-content:space-between;flex-wrap:wrap;gap:.5rem">
+  <span>ARTI-4219 · Arquitectura de Plataformas · Uniandes</span>
+  <span>Hoja de trabajo 12 · Global Logistics API · 2026-20</span>
+</footer>
+
+<script>
+/* ---------- Síntesis, detalle y enlaces directos ---------- */
+(function(){
+  const details = [...document.querySelectorAll('main details')];
+  const toggle = document.getElementById('reading-toggle');
+  const status = document.getElementById('reading-status');
+  function sync(){
+    const allOpen = details.every(d => d.open);
+    const someOpen = details.some(d => d.open);
+    toggle.textContent = allOpen ? 'Volver a síntesis' : 'Mostrar análisis completo';
+    toggle.setAttribute('aria-expanded', String(allOpen));
+    status.textContent = allOpen ? 'Análisis completo · Todos los apartados están abiertos.' :
+      someOpen ? 'Vista de síntesis · Algunos apartados están abiertos.' :
+      'Vista de síntesis · Despliega cada apartado para consultar su fundamento.';
+  }
+  toggle.closest('.reading-controls').hidden = false;
+  toggle.addEventListener('click', function(){
+    const open = !details.every(d => d.open);
+    details.forEach(d => { d.open = open; });
+    sync();
+  });
+  details.forEach(d => d.addEventListener('toggle', sync));
+  function revealAnchor(){
+    let id;
+    try { id = decodeURIComponent(location.hash.slice(1)); } catch(e) { return; }
+    const target = id && document.getElementById(id);
+    if(!target) return;
+    let anc = target.closest('details');
+    if(!anc) return;
+    while(anc){ anc.open = true; anc = anc.parentElement.closest('details'); }
+    requestAnimationFrame(() => target.scrollIntoView({block:'start'}));
+  }
+  addEventListener('hashchange', revealAnchor);
+  revealAnchor();
+  let beforePrint = null;
+  addEventListener('beforeprint', function(){
+    if(beforePrint === null) beforePrint = details.map(d => d.open);
+    details.forEach(d => { d.open = true; });
+  });
+  addEventListener('afterprint', function(){
+    if(beforePrint === null) return;
+    details.forEach((d, i) => { d.open = beforePrint[i]; });
+    beforePrint = null; sync();
+  });
+  sync();
+})();
+
+/* ---------- Fondo: carriles tenues con puntos (estático) ---------- */
+(function(){
+  const c = document.getElementById('bg'), x = c.getContext('2d');
+  function resize(){
+    const W = c.width = innerWidth, H = c.height = innerHeight;
+    x.clearRect(0, 0, W, H);
+    x.lineWidth = 1; x.strokeStyle = 'rgba(24,35,42,.03)';
+    const n = Math.max(6, Math.round(H / 110)), lh = H / n;
+    for(let i = 0; i < n; i++){ const y = (i + .5) * lh; x.beginPath(); x.moveTo(0, y); x.lineTo(W, y); x.stroke(); }
+    const count = Math.round(W / 80);
+    for(let i = 0; i < count; i++){
+      const y = (Math.floor(Math.random() * n) + .5) * lh, px = Math.random() * W, s = 2.5 + Math.random() * 2;
+      x.fillStyle = Math.random() < .1 ? 'rgba(34,103,90,.08)' : 'rgba(24,35,42,.04)';
+      x.beginPath(); x.arc(px, y, s / 2, 0, Math.PI * 2); x.fill();
+    }
+  }
+  addEventListener('resize', resize); resize();
+})();
+
+/* ---------- Barra de progreso de lectura ---------- */
+addEventListener('scroll', () => {
+  const h = document.documentElement;
+  const p = h.scrollTop / Math.max(1, h.scrollHeight - h.clientHeight) * 100;
+  document.getElementById('bar').style.width = Math.min(100, p) + '%';
+}, {passive: true});
+</script>
+<script>
+/* ---------- Animación de portada: 20 días manuales frente a 2 días por Golden Path ---------- */
+(function(){
+  const NS = 'http://www.w3.org/2000/svg';
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const MONO = "'JetBrains Mono',monospace", SANS = "'Source Sans 3',sans-serif", SERIF = "'Source Serif 4',Georgia,serif";
+  const DAYS = 20, RUN = 7000, HOLD = 2600, CYCLE = RUN + HOLD, RATE = 5 * 500;
+  const X0 = 60, X1 = 940, px = d => X0 + (X1 - X0) * d / DAYS;
+  const fmt = n => '$' + Math.round(n).toLocaleString('es-CO');
+  const mk = (tag, a, p) => { const e = document.createElementNS(NS, tag); for(const k in a) e.setAttribute(k, a[k]); if(p) p.appendChild(e); return e; };
+  const txt = (x, y, s, p, size, font, anchor) => { const t = mk('text', {x, y, 'text-anchor': anchor || 'middle', fill: 'var(--ink)', 'font-family': font || SANS, 'font-size': size || 13}, p); t.textContent = s; return t; };
+  const curve = (x1, y1, cx, cy, x2, y2, style, p) => mk('path', Object.assign({d: `M${x1} ${y1} Q${cx} ${cy} ${x2} ${y2}`, fill: 'none'}, style), p);
+
+  /* Iconos lineales 24×24 al estilo Lucide */
+  const IC = {
+    ticket: b => { mk('path', {d: 'M3 7.5A1.5 1.5 0 0 1 4.5 6h15A1.5 1.5 0 0 1 21 7.5v2.5a2 2 0 0 0 0 4v2.5a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 16.5V14a2 2 0 0 0 0-4Z'}, b); mk('path', {d: 'M14 6v12', 'stroke-dasharray': '2 2.5'}, b); },
+    clock: b => { mk('circle', {cx: 12, cy: 12, r: 9}, b); mk('path', {d: 'M12 7v5l3.5 2'}, b); },
+    key: b => { mk('circle', {cx: 8, cy: 15, r: 4}, b); mk('path', {d: 'M10.8 12.2L19 4M16 7l2.5 2.5M14 9l2 2'}, b); },
+    code: b => { mk('path', {d: 'M8 7L3 12L8 17'}, b); mk('path', {d: 'M16 7L21 12L16 17'}, b); },
+    flag: b => { mk('path', {d: 'M5 21V4'}, b); mk('path', {d: 'M5 4h12l-2.5 4 2.5 4H5'}, b); },
+    layers: b => { mk('path', {d: 'M12 3L21 8 12 13 3 8Z'}, b); mk('path', {d: 'M3 13L12 18 21 13'}, b); mk('path', {d: 'M3 17.5L12 22.5 21 17.5'}, b); },
+    pipe: b => { mk('rect', {x: 3, y: 9, width: 5, height: 6, rx: 1}, b); mk('rect', {x: 16, y: 9, width: 5, height: 6, rx: 1}, b); mk('path', {d: 'M8 12h8M13 9.5L16 12 13 14.5'}, b); }
+  };
+
+  /* Cápsulas: icono arriba, rótulo y subrótulo en carriles propios */
+  function capsules(g, y, nodes, color){
+    const out = [];
+    nodes.forEach((n, i) => {
+      if(nodes[i + 1]) curve(n.x + 75, y, (n.x + nodes[i + 1].x) / 2, y - 30, nodes[i + 1].x - 75, y, {stroke: '#A3ACA5', 'stroke-width': 1.6, 'stroke-dasharray': '4 6'}, g);
+      const b = mk('g', {}, g);
+      const r = mk('rect', {x: n.x - 75, y: y - 42, width: 150, height: 84, rx: 42, fill: 'var(--card)', stroke: 'var(--ink)', 'stroke-width': 1.4}, b);
+      const ic = mk('g', {transform: `translate(${n.x - 12},${y - 37})`, fill: 'none', stroke: 'var(--ink)', 'stroke-width': 1.6, 'stroke-linecap': 'round', 'stroke-linejoin': 'round'}, b);
+      n.icon(ic);
+      txt(n.x, y + 6, n.label, b, 14);
+      txt(n.x, y + 22, n.sub, b, 10.5, MONO).setAttribute('fill', 'var(--muted)');
+      out.push({rect: r, ic, color, from: n.from, to: n.to});
+    });
+    return out;
+  }
+  function highlight(list, d){
+    list.forEach(c => {
+      const on = d >= c.from && d < c.to;
+      c.rect.setAttribute('stroke', on ? c.color : 'var(--ink)');
+      c.rect.setAttribute('stroke-width', on ? 2.6 : 1.4);
+      c.ic.setAttribute('stroke', on ? c.color : 'var(--ink)');
+    });
+  }
+  /* Línea de tiempo común: 0–20 días, rótulos de días bajo el eje y estados sobre él */
+  function track(g, y){
+    mk('line', {x1: X0, y1: y, x2: X1, y2: y, stroke: 'var(--line)', 'stroke-width': 8, 'stroke-linecap': 'round'}, g);
+    [0, 2, 5, 10, 15, 20].forEach(d => {
+      mk('line', {x1: px(d), y1: y + 7, x2: px(d), y2: y + 12, stroke: 'var(--muted)', 'stroke-width': 1}, g);
+      txt(px(d), y + 25, d === 0 ? 'día 0' : String(d), g, 10.5, MONO).setAttribute('fill', 'var(--muted)');
+    });
+  }
+
+  /* ANTES */
+  const gA = document.getElementById('gAntes');
+  const capsA = capsules(gA, 110, [
+    {x: 100, icon: IC.ticket, label: 'Ticket', sub: 'solicitud · día 0', from: 0, to: 1},
+    {x: 280, icon: IC.clock, label: 'Espera en cola', sub: 'equipo de infra', from: 1, to: 10},
+    {x: 460, icon: IC.key, label: 'Red, IAM y secretos', sub: 'configuración manual', from: 10, to: 15},
+    {x: 640, icon: IC.code, label: 'Integración CI/CD', sub: 'scripts por equipo', from: 15, to: 20},
+    {x: 860, icon: IC.flag, label: 'Producción', sub: 'día 20', from: 20, to: 99}], 'var(--accent)');
+  track(gA, 212);
+  const barA = mk('line', {x1: X0, y1: 212, x2: X0, y2: 212, stroke: 'var(--accent)', 'stroke-width': 8, 'stroke-linecap': 'round'}, gA);
+  const ballA = mk('circle', {cx: X0, cy: 212, r: 9, fill: 'var(--accent)', stroke: 'var(--card)', 'stroke-width': 2}, gA);
+  const stA = txt(X0, 190, '', gA, 12, MONO, 'start'); stA.setAttribute('fill', 'var(--muted)');
+  const costA = txt(X1, 190, '', gA, 13, MONO, 'end'); costA.setAttribute('fill', 'var(--accent)'); costA.setAttribute('font-weight', '500');
+
+  /* DESPUÉS */
+  const gB = document.getElementById('gDespues');
+  const capsB = capsules(gB, 370, [
+    {x: 100, icon: IC.layers, label: 'Plantilla del portal', sub: 'autoservicio · día 0', from: 0, to: .6},
+    {x: 280, icon: IC.pipe, label: 'Pipeline estándar', sub: 'entorno + CI/CD', from: .6, to: 2},
+    {x: 460, icon: IC.flag, label: 'Producción', sub: 'día 2', from: 2, to: 99}], 'var(--accent2)');
+  /* Panel del Cost of Delay evitado, a la derecha y sin compartir carril con las cápsulas */
+  mk('rect', {x: 580, y: 324, width: 360, height: 94, rx: 6, fill: 'var(--soft)', stroke: 'var(--accent2)', 'stroke-width': 1.4}, gB);
+  txt(600, 347, 'COST OF DELAY EVITADO', gB, 11, MONO, 'start').setAttribute('fill', 'var(--muted)');
+  const codDays = txt(600, 385, '0 días', gB, 30, SERIF, 'start'); codDays.setAttribute('font-weight', '800'); codDays.setAttribute('fill', 'var(--accent2)');
+  const codText = txt(600, 406, 'antes en producción · $0 de espera evitada', gB, 12.5, SANS, 'start'); codText.setAttribute('fill', 'var(--ink)');
+  track(gB, 472);
+  const valB = mk('line', {x1: px(2), y1: 472, x2: px(2), y2: 472, stroke: 'var(--accent2)', 'stroke-width': 8, 'stroke-linecap': 'round', opacity: .35}, gB);
+  const barB = mk('line', {x1: X0, y1: 472, x2: X0, y2: 472, stroke: 'var(--accent)', 'stroke-width': 8, 'stroke-linecap': 'round'}, gB);
+  const ballB = mk('circle', {cx: X0, cy: 472, r: 9, fill: 'var(--accent2)', stroke: 'var(--card)', 'stroke-width': 2}, gB);
+  const stB = txt(X0, 450, '', gB, 12, MONO, 'start'); stB.setAttribute('fill', 'var(--muted)');
+  const costB = txt(X1, 450, '', gB, 13, MONO, 'end'); costB.setAttribute('fill', 'var(--accent2)'); costB.setAttribute('font-weight', '500');
+
+  /* Ronda de los 10 equipos */
+  const gR = document.getElementById('gRonda');
+  mk('rect', {x: 24, y: 528, width: 952, height: 46, rx: 4, fill: 'var(--card)', stroke: 'var(--line)', 'stroke-width': 1}, gR);
+  const dots = [];
+  for(let i = 0; i < 10; i++) dots.push(mk('circle', {cx: 52 + i * 20, cy: 551, r: 6, fill: 'var(--line)'}, gR));
+  const team = txt(260, 556, '', gR, 14, SANS, 'start');
+  const acc = txt(956, 556, '', gR, 14, MONO, 'end'); acc.setAttribute('fill', 'var(--accent2)'); acc.setAttribute('font-weight', '500');
+
+  function draw(d, k){
+    const dB = Math.min(d, 2);
+    highlight(capsA, d); highlight(capsB, d);
+    barA.setAttribute('x2', px(d)); ballA.setAttribute('cx', px(d));
+    stA.textContent = d < DAYS ? `día ${Math.floor(d)} de 20 · 5 ingenieros esperando` : 'día 20 · en producción';
+    const dd = Math.floor(d), ddB = Math.min(dd, 2), saved = Math.max(0, dd - 2);
+    costA.textContent = 'costo ' + fmt(RATE * dd);
+    barB.setAttribute('x2', px(dB)); ballB.setAttribute('cx', px(dB));
+    valB.setAttribute('x2', px(Math.max(2, d)));
+    stB.textContent = d < 2 ? `día ${Math.floor(d)} de 2 · autoservicio` : 'en producción desde el día 2 · capturando valor';
+    costB.textContent = 'costo ' + fmt(RATE * ddB);
+    codDays.textContent = saved + (saved === 1 ? ' día' : ' días');
+    codText.textContent = 'antes en producción · ' + fmt(RATE * saved) + ' de espera evitada';
+    dots.forEach((c, i) => c.setAttribute('fill', i < k ? 'var(--accent2)' : i === k ? 'var(--ochre)' : 'var(--line)'));
+    team.textContent = `Ronda ilustrativa · equipo ${k + 1} de 10`;
+    acc.textContent = 'ahorro acumulado ' + fmt(k * 45000 + RATE * saved) + ' de $450.000';
+  }
+
+  /* Al imprimir o con movimiento reducido se muestra el estado final: 20 días y $450.000 */
+  const printQ = matchMedia('print');
+  let printing = printQ.matches;
+  printQ.addEventListener('change', e => { printing = e.matches; if(printing) draw(DAYS, 9); });
+  addEventListener('beforeprint', () => { printing = true; draw(DAYS, 9); });
+  addEventListener('afterprint', () => { printing = false; });
+  if(reduce || printing){ draw(DAYS, 9); if(reduce) return; }
+  const t0 = performance.now();
+  function frame(now){
+    const t = now - t0, c = Math.floor(t / CYCLE), tt = t % CYCLE;
+    if(printing) draw(DAYS, 9); else draw(Math.min(DAYS, DAYS * tt / RUN), c % 10);
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+})();
+</script>
+<script>
+/* ---------- Visor de diagramas: zoom, ajuste y arrastre ---------- */
+document.querySelectorAll('.diagram-viewer').forEach(function(viewer){
+  var stage = viewer.querySelector('.diagram-viewer-stage');
+  var img = stage.querySelector('svg');
+  var vb = img.viewBox.baseVal, natW = vb.width, natH = vb.height;
+  var scale = 1, tx = 0, ty = 0;
+  function render(){ img.style.transform = 'translate(' + tx + 'px,' + ty + 'px) scale(' + scale + ')'; }
+  function fit(){
+    var r = stage.getBoundingClientRect(), pad = 12;
+    scale = Math.min((r.width - pad) / natW, (r.height - pad) / natH);
+    tx = (r.width - natW * scale) / 2; ty = (r.height - natH * scale) / 2; render();
+  }
+  function zoomAt(cx, cy, f){
+    var r = stage.getBoundingClientRect(), x = cx - r.left, y = cy - r.top;
+    var ns = Math.max(.05, Math.min(60, scale * f));
+    tx = x - (x - tx) * (ns / scale); ty = y - (y - ty) * (ns / scale); scale = ns; render();
+  }
+  stage.addEventListener('wheel', function(e){ e.preventDefault(); zoomAt(e.clientX, e.clientY, e.deltaY > 0 ? .9 : 1.11); }, {passive: false});
+  stage.addEventListener('dblclick', function(e){ zoomAt(e.clientX, e.clientY, 1.5); });
+  viewer.querySelector('[data-zoom="in"]').onclick = function(){ var r = stage.getBoundingClientRect(); zoomAt(r.left + r.width / 2, r.top + r.height / 2, 1.2); };
+  viewer.querySelector('[data-zoom="out"]').onclick = function(){ var r = stage.getBoundingClientRect(); zoomAt(r.left + r.width / 2, r.top + r.height / 2, .83); };
+  viewer.querySelector('[data-zoom="fit"]').onclick = fit;
+  var drag = null;
+  stage.addEventListener('pointerdown', function(e){ drag = {x: e.clientX, y: e.clientY}; stage.classList.add('grabbing'); stage.setPointerCapture(e.pointerId); });
+  stage.addEventListener('pointermove', function(e){ if(!drag) return; tx += e.clientX - drag.x; ty += e.clientY - drag.y; drag.x = e.clientX; drag.y = e.clientY; render(); });
+  stage.addEventListener('pointerup', function(){ drag = null; stage.classList.remove('grabbing'); });
+  addEventListener('resize', fit);
+  viewer.closest('details') && viewer.closest('details').addEventListener('toggle', function(){ requestAnimationFrame(fit); });
+  fit();
+});
+</script>
+</body>
+</html>
